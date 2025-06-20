@@ -3,19 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FakeChain Explorer</title>
+  <title>Care Chain</title>
   <style>
     body {
       font-family: sans-serif;
       background: #f4f4f4;
       padding: 20px;
+      margin: 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 800px;
+      margin: 0 auto 20px;
     }
     h1 {
-      text-align: center;
+      margin: 0;
+    }
+    .logo {
+      height: 40px;
     }
     #chain {
       max-width: 600px;
-      margin: 20px auto;
+      margin: 30px auto;
     }
     .block {
       background: white;
@@ -34,20 +45,47 @@
       font-size: 0.9em;
       white-space: pre-wrap;
     }
-    #addBlock {
-      display: block;
+    #qr-form {
+      max-width: 600px;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #qr-input {
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+    }
+    #submitQR {
       padding: 10px 20px;
       font-size: 1em;
       cursor: pointer;
+      border: none;
+      background-color: #2b7fb8;
+      color: white;
+      border-radius: 6px;
+    }
+    #submitQR:hover {
+      background-color: #1a6aa1;
     }
   </style>
 </head>
 <body>
 
-  <h1>FakeChain Explorer</h1>
+  <header>
+    <h1>Care Chain</h1>
+    <img class="logo" src="logo" alt="Care Chain Logo">
+  </header>
+
+  <form id="qr-form">
+    <label for="qr-input"><strong>Scan or enter QR code data from patient:</strong></label>
+    <input type="text" id="qr-input" placeholder="e.g. care-session:patient123" required />
+    <button type="submit" id="submitQR">Submit and Add Block</button>
+  </form>
+
   <div id="chain"></div>
-  <button id="addBlock">Add Block</button>
 
   <script>
     function buf2hex(buffer) {
@@ -77,12 +115,12 @@
       renderChain();
     }
 
-    async function addBlock() {
+    async function addBlockFromQR(qrData) {
       const prev = chain[chain.length - 1];
       const newBlock = {
         index: prev.index + 1,
         timestamp: new Date().toISOString(),
-        data: `Transaction Data #${prev.index + 1}`,
+        data: `🩺 QR Entry: ${qrData}`,
         previousHash: prev.hash
       };
       newBlock.hash = await sha256(JSON.stringify(newBlock));
@@ -111,9 +149,18 @@ Data:     ${block.data}
       });
     }
 
-    document.getElementById('addBlock').addEventListener('click', addBlock);
+    document.getElementById('qr-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('qr-input');
+      const data = input.value.trim();
+      if (data.length > 0) {
+        await addBlockFromQR(data);
+        input.value = '';
+      }
+    });
 
     createGenesisBlock();
   </script>
+
 </body>
 </html>
