@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FakeChain Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    #chain {
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    .block {
+      background: white;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .block-header {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .block-data {
+      font-family: monospace;
+      font-size: 0.9em;
+      white-space: pre-wrap;
+    }
+    #addBlock {
+      display: block;
+      margin: 0 auto;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>FakeChain Explorer</h1>
+  <div id="chain"></div>
+  <button id="addBlock">Add Block</button>
+
+  <script>
+    // Utility to convert ArrayBuffer to hex string
+    function buf2hex(buffer) {
+      return Array.prototype.map.call(
+        new Uint8Array(buffer),
+        x => ('00' + x.toString(16)).slice(-2)
+      ).join('');
+    }
+
+    // Compute SHA-256 of a string
+    async function sha256(msg) {
+      const msgBuffer = new TextEncoder().encode(msg);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      return buf2hex(hashBuffer);
+    }
+
+    // The “blockchain” stored in-memory only
+    const chain = [];
+
+    // Create the genesis block
+    async function createGenesisBlock() {
+      const genesis = {
+        index: 0,
+        timestamp: new Date().toISOString(),
+        data: "🪙 Genesis Block",
+        previousHash: "0".repeat(64)
+      };
+      genesis.hash = await sha256(JSON.stringify(genesis));
+      chain.push(genesis);
+      renderChain();
+    }
+
+    // Add a new block with random data
+    async function addBlock() {
+      const prev = chain[chain.length - 1];
+      const newBlock = {
+        index: prev.index + 1,
+        timestamp: new Date().toISOString(),
+        data: `Transaction Data #${prev.index + 1}`,
+        previousHash: prev.hash
+      };
+      newBlock.hash = await sha256(JSON.stringify(newBlock));
+      chain.push(newBlock);
+      renderChain();
+    }
+
+    // Render the chain into the page
+    function renderChain() {
+      const container = document.getElementById('chain');
+      container.innerHTML = '';
+      chain.forEach(block => {
+        const el = document.createElement('div');
+        el.className = 'block';
+        el.innerHTML = `
+          <div class="block-header">
+            Block #${block.index} — ${block.timestamp}
+          </div>
+          <div class="block-data">
+Index: ${block.index}
+Previous: ${block.previousHash.slice(0, 16)}…  
+Hash:     ${block.hash.slice(0, 16)}…  
+Data:     ${block.data}
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    // Wire up button
+    document.getElementById('addBlock').addEventListener('click', addBlock);
+
+    // Kick things off
+    createGenesisBlock();
+  </script>
+</body>
+</html>
