@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>FakeChain Demo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FakeChain Explorer</title>
   <style>
     body {
       font-family: sans-serif;
@@ -64,7 +65,7 @@
       return buf2hex(hashBuffer);
     }
 
-    // The “blockchain” stored in-memory only
+    // In-memory “blockchain”
     const chain = [];
 
     // Create the genesis block
@@ -72,7 +73,7 @@
       const genesis = {
         index: 0,
         timestamp: new Date().toISOString(),
-        data: "Genesis Block",
+        data: "🪙 Genesis Block",
         previousHash: "0".repeat(64)
       };
       genesis.hash = await sha256(JSON.stringify(genesis));
@@ -80,7 +81,7 @@
       renderChain();
     }
 
-    // Add a new block with random data
+    // Add a new block with dummy data
     async function addBlock() {
       const prev = chain[chain.length - 1];
       const newBlock = {
@@ -119,8 +120,9 @@ Data:     ${block.data}
     // Wire up button
     document.getElementById('addBlock').addEventListener('click', addBlock);
 
-    // Kick things off
+    // Initialize
     createGenesisBlock();
   </script>
+
 </body>
 </html>
