@@ -44,26 +44,27 @@
   </style>
 </head>
 <body>
+
   <h1>FakeChain Explorer</h1>
   <div id="chain"></div>
   <button id="addBlock">Add Block</button>
+
   <script>
-    // Utility to convert ArrayBuffer to hex string
     function buf2hex(buffer) {
       return Array.prototype.map.call(
         new Uint8Array(buffer),
         x => ('00' + x.toString(16)).slice(-2)
       ).join('');
     }
-    // Compute SHA-256 of a string
+
     async function sha256(msg) {
       const msgBuffer = new TextEncoder().encode(msg);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
       return buf2hex(hashBuffer);
     }
-    // In-memory “blockchain”
+
     const chain = [];
-    // Create the genesis block
+
     async function createGenesisBlock() {
       const genesis = {
         index: 0,
@@ -75,7 +76,7 @@
       chain.push(genesis);
       renderChain();
     }
-    // Add a new block with dummy data
+
     async function addBlock() {
       const prev = chain[chain.length - 1];
       const newBlock = {
@@ -88,7 +89,7 @@
       chain.push(newBlock);
       renderChain();
     }
-    // Render the chain into the page
+
     function renderChain() {
       const container = document.getElementById('chain');
       container.innerHTML = '';
@@ -109,9 +110,9 @@ Data:     ${block.data}
         container.appendChild(el);
       });
     }
-    // Wire up button
+
     document.getElementById('addBlock').addEventListener('click', addBlock);
-    // Initialize
+
     createGenesisBlock();
   </script>
 </body>
